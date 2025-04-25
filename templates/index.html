@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilingual Text Splitter</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <div class="container py-4">
+        <header class="pb-3 mb-4 border-bottom">
+            <h1 class="text-center"><i class="fas fa-language me-2"></i>Bilingual Text Splitter</h1>
+        </header>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Split Bilingual Excel Documents into Aligned Sentence Pairs</h5>
+                        
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Excel File (.xlsx, .xls)</label>
+                                <input class="form-control" type="file" id="file" name="file" accept=".xlsx,.xls" required>
+                                <div class="form-text">Upload your bilingual Excel document containing text to be split into sentences.</div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="source_column" class="form-label">Source Language Column</label>
+                                    <input type="text" class="form-control" id="source_column" name="source_column" value="en-US" required>
+                                    <div class="form-text">The column name for the source language.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="target_column" class="form-label">Target Language Column</label>
+                                    <input type="text" class="form-control" id="target_column" name="target_column" value="cs-CZ" required>
+                                    <div class="form-text">The column name for the target language.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="check_alignment" name="check_alignment" value="1" checked>
+                                <label class="form-check-label" for="check_alignment">Verify translation alignment</label>
+                                <div class="form-text">Checks if sentence pairs appear to be proper translations of each other.</div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-file-import me-2"></i>Upload and Process
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-4 shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">How It Works</h5>
+                    </div>
+                    <div class="card-body">
+                        <ol class="mb-0">
+                            <li>Upload an Excel file containing bilingual text (e.g., English and Czech)</li>
+                            <li>Specify the column names for source and target languages</li>
+                            <li>The tool intelligently splits the text into individual sentences</li>
+                            <li>Aligned sentence pairs are maintained between languages</li>
+                            <li>Download the resulting Excel file with split sentences and original row references</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="card mt-4 shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">Advanced Features</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Smart handling of abbreviations in both English and Czech</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Preserves full context of sentences without breaking them</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Special handling for numbers and smart punctuation correction</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Automatic alignment of slightly mismatched sentence counts</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Translation alignment verification to identify poor translations</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Comprehensive statistics with original row references</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

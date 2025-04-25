@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Results | Bilingual Text Splitter</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <div class="container py-4">
+        <header class="pb-3 mb-4 border-bottom">
+            <h1 class="text-center"><i class="fas fa-language me-2"></i>Bilingual Text Splitter</h1>
+        </header>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Processing Complete</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Processing Statistics</h5>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Total Rows Processed</th>
+                                        <td>{{ stats.processed_rows }} / {{ stats.total_rows }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Skipped Rows</th>
+                                        <td>{{ stats.skipped_rows }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Total Sentences Generated</th>
+                                        <td>{{ stats.total_sentences }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Mismatched Sentence Pairs</th>
+                                        <td>
+                                            {{ stats.mismatched_sentences }}
+                                            {% if stats.mismatched_sentences > 0 %}
+                                                <span class="badge bg-warning">
+                                                    {% if stats.mismatched_sentences == stats.skipped_rows %}
+                                                        Rows with mismatched sentence counts were skipped
+                                                    {% else %}
+                                                        Rows with significant mismatch were skipped, slight mismatches were aligned
+                                                    {% endif %}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    
+                                    {% if stats.get('alignment_score') is not none %}
+                                    <tr>
+                                        <th scope="row">Translation Alignment Score</th>
+                                        <td>
+                                            {{ "%.2f"|format(stats.alignment_score) }} / 1.0
+                                            {% if stats.alignment_score >= 0.85 %}
+                                                <span class="badge bg-success">Excellent</span>
+                                            {% elif stats.alignment_score >= 0.7 %}
+                                                <span class="badge bg-primary">Good</span>
+                                            {% elif stats.alignment_score >= 0.5 %}
+                                                <span class="badge bg-warning">Fair</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Poor</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Well-Aligned Sentences</th>
+                                        <td>
+                                            {{ "%.1f"|format(stats.aligned_percentage) }}% 
+                                            <span class="text-muted">({{ stats.alignment_checked_count }} pairs checked)</span>
+                                        </td>
+                                    </tr>
+                                    {% if stats.get('poorly_aligned_count', 0) > 0 %}
+                                    <tr>
+                                        <th scope="row">Poorly Aligned Sentences</th>
+                                        <td>
+                                            {{ stats.poorly_aligned_count }}
+                                            <span class="badge bg-warning">See output file for details</span>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endif %}
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('download') }}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download Processed File
+                            </a>
+                            <a href="{{ url_for('new_process') }}" class="btn btn-secondary">
+                                <i class="fas fa-plus me-2"></i>Process Another File
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4 shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">About the Processing</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>The file has been processed and sentences have been split while maintaining alignment between language pairs. The resulting Excel file contains:</p>
+                        <ul>
+                            <li>Individual sentences from the source language</li>
+                            <li>Corresponding aligned sentences from the target language</li>
+                            <li>Reference to the original row number for traceability</li>
+                        </ul>
+                        <p>Enhanced processing features:</p>
+                        <ul>
+                            <li>Smart handling of common abbreviations in both English and Czech</li>
+                            <li>Special handling for decimal numbers and version numbers</li>
+                            <li>Proper handling of punctuation with double-period removal</li>
+                            <li>Alignment of slightly mismatched sentence counts</li>
+                            <li>Preserves full sentence context without splitting long sentences</li>
+                        </ul>
+                        <p class="mb-0">You can now download the processed file for your translation reference work.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
